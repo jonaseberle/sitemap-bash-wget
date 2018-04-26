@@ -35,6 +35,3 @@ echo "</urlset>" >> "$sitemapFilePath"
 rm -rf "$sortedUrlsFilePath" "$urlsFilePath" "$tmpDir"
 
 
-#wget --spider --no-directories --delete-after --accept='html' --level=0 -H -r https://www.interfahnen.com --domains=www.interfahnen.com 2>&1 | grep '^--' | awk '{ print $3 }' > /tmp/urls
-
-
