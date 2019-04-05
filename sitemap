@@ -1,6 +1,7 @@
 #!/bin/bash
-# scrapes URLs starting with a given URL and writes a sitemap.xml
-# based on @link http://www.lostsaloon.com/technology/how-to-create-an-xml-sitemap-using-wget-and-shell-script/
+# - scrapes URLs starting with a given URL and writes a sitemap.xml
+# - keeps temp files 
+# - based on @link http://www.lostsaloon.com/technology/how-to-create-an-xml-sitemap-using-wget-and-shell-script/
 # @author jonas.eberle@d-mind.de
 
 #set -x
@@ -10,18 +11,17 @@ if [ -z "$2" ]; then
 	exit 1
 fi
 
-sitedomain="$1"
+startUrl="$1"
 shift
 sitemapFilePath="$1"
 shift
 
 urlsFilePath="${sitemapFilePath}.tmp.txt"
 sortedUrlsFilePath="${sitemapFilePath}.txt"
-tmpDir=$(mktemp -d)
 
 echo "Logs: $urlsFilePath"
 
-wget --directory-prefix "$tmpDir" --spider --recursive --follow-tags=a --level=inf --no-verbose --output-file="$urlsFilePath" $sitedomain $@
+wget --no-clobber --recursive --follow-tags=a,form --adjust-extension --level=inf --no-verbose --output-file="$urlsFilePath" $startUrl $@
 grep -i URL "$urlsFilePath" | awk -F 'URL:' '{print $2}' | awk '{$1=$1};1' | awk '{print $1}' | sort -u | sed '/^$/d' > "$sortedUrlsFilePath"
 header='<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -37,7 +37,5 @@ while read p; do
 	esac
 done < "$sortedUrlsFilePath"
 echo "</urlset>" >> "$sitemapFilePath"
-
-rm -rf "$tmpDir"
 
 
